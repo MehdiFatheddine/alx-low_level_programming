@@ -1,8 +1,9 @@
 #include "main.h"
 
 /**
- * Writed by Mehdi FATHEDDINE
+ * jack_bauer - prints every minute of the day of Jack Bauer
  * Return:void
+ * Writed by Mehdi FATHEDDINE
  */
 
 void jack_bauer(void)
