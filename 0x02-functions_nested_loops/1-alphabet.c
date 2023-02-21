@@ -1,15 +1,20 @@
-#include "main.h"
-/**
- * writed by Mehdi Fatheddine
- * print_alphabet - prints all alphabets in lowercase.
- * Return: On success 1.
- */
-void print_alphabet(void)
-{
-char i;
-for (i = 'a'; i <= 'z'; i++)
-{
-_putchar(i);
-}
-_putchar('\n');
-}
+#include "1.main.h"
+
+
+	/**
+	 * Writed By Mehdi Fatheddine
+	 * print_alphabet - print all alphabet in lowercase
+	 */
+
+
+	void print_alphabet(void)
+	{
+		char letter;
+
+
+		for (letter = 'a'; letter <= 'z'; letter++)
+			_putchar(letter);
+
+
+		_putchar('\n');
+	}
