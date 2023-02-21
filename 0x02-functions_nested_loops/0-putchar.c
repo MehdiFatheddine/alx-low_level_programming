@@ -1,10 +1,8 @@
 #include "main.h"
 	/**
-	 * main - print _putchar
 	 * writed by Mehdi Fatheddine
 	 * Return: 0
 	 */
-
 
 	int main(void)
 	{
