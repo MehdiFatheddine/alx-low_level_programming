@@ -2,7 +2,6 @@
 
 /**
 *print_numbers - print 0123456789
-* owned by MEHDI FATHEDDINE 
 *Return: void
 */
 
