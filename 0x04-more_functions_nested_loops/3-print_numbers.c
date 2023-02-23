@@ -2,7 +2,7 @@
 
 /**
 *print_numbers - print 0123456789
-* WIRTED BY : MEHDI FATHEDDINE 
+* owned by MEHDI FATHEDDINE 
 *Return: void
 */
 
