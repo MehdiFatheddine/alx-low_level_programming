@@ -1,105 +1,86 @@
+#include "main.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+char *create_buffer(char *file);
+void close_file(int fd);
 /**
- * _strlen - Returns the length of a string.
- * @str: The string to get the length of.
+ * create_buffer - Allocates 1024 bytes for a buffer.
+ * @file: The name of the file buffer is storing chars for.
  *
- * Return: The length of @str.
+ * Return: A pointer to the newly-allocated buffer.
  */
-size_t _strlen(char *str)
+char *create_buffer(char *file)
 {
-size_t i;
-for (i = 0; str[i];)
-i++;
-return (i);
+char *buffer;
+buffer = malloc(sizeof(char) * 1024);
+if (buffer == NULL)
+{
+dprintf(STDERR_FILENO,
+"Error: Can't write to %s\n", file);
+exit(99);
+}
+return (buffer);
 }
 /**
- * _strdup - Duplicates a string.
- * @str: The string to duplicate.
- *
- * Return: A pointer to the newly-allocated duplicate string.
- *         NULL if memory allocation fails or str is NULL.
+ * close_file - Closes file descriptors.
+ * @fd: The file descriptor to be closed.
  */
-char *_strdup(char *str)
+void close_file(int fd)
 {
-char *dup;
-size_t len, i;
-if (str == NULL)
-return (NULL);
-len = _strlen(str);
-dup = malloc(sizeof(char) * (len + 1));
-if (dup == NULL)
-return (NULL);
-for (i = 0; str[i]; i++)
-dup[i] = str[i];
-dup[i] = '\0';
-return (dup);
+int c;
+c = close(fd);
+if (c == -1)
+{
+dprintf(STDERR_FILENO, "Error: Can't close fd %d\n", fd);
+exit(100);
+}
 }
 /**
- * _strcat - Concatenates two strings.
- * @dest: The string to concatenate to.
- * @src: The string to be concatenated.
+ * main - Copies the contents of a file to another file.
+ * @argc: The number of arguments supplied to the program.
+ * @argv: An array of pointers to the arguments.
  *
- * Return: A pointer to the concatenated string.
- *         NULL if memory allocation fails or dest/src are NULL.
+ * Return: 0 on success.
+ *
+ * Description: If the argument count is incorrect - exit code 97.
+ *              If file_from does not exist or cannot be read - exit code 98.
+ *              If file_to cannot be created or written to - exit code 99.
+ *              If file_to or file_from cannot be closed - exit code 100.
  */
-char *_strcat(char *dest, char *src)
+int main(int argc, char *argv[])
 {
-size_t dest_len, src_len, i, j;
-if (dest == NULL || src == NULL)
-return (NULL);
-dest_len = _strlen(dest);
-src_len = _strlen(src);
-for (i = dest_len, j = 0; j < src_len; i++, j++)
-dest[i] = src[j];
-dest[i] = '\0';
-return (dest);
+int from, to, r, w;
+char *buffer;
+if (argc != 3)
+{
+dprintf(STDERR_FILENO, "Usage: cp file_from file_to\n");
+exit(97);
 }
-/**
- * str_concat - Concatenates two strings.
- * @s1: The first string.
- * @s2: The second string.
- *
- * Return: A pointer to the newly-allocated concatenated string.
- *         NULL on failure.
- */
-char *str_concat(char *s1, char *s2)
+buffer = create_buffer(argv[2]);
+from = open(argv[1], O_RDONLY);
+r = read(from, buffer, 1024);
+to = open(argv[2], O_CREAT | O_WRONLY | O_TRUNC, 0664);
+do {
+if (from == -1 || r == -1)
 {
-char *concat;
-if (s1 == NULL)
-s1 = "";
-if (s2 == NULL)
-s2 = "";
-concat = malloc(sizeof(char) * (_strlen(s1) + _strlen(s2) + 1));
-if (concat == NULL)
-return (NULL);
-_strcat(concat, s1);
-_strcat(concat, s2);
-return (concat);
+dprintf(STDERR_FILENO,
+"Error: Can't read from file %s\n", argv[1]);
+free(buffer);
+exit(98);
 }
-/**
- * main - Entry point.
- *
- * Return: Always 0.
- */
-int main(void)
+w = write(to, buffer, r);
+if (to == -1 || w == -1)
 {
-char *s;
-s = str_concat("Holberton ", "School");
-printf("%s\n", s);
-free(s);
-s = str_concat(NULL, NULL);
-printf("%s\n", s);
-free(s);
-s = str_concat(NULL, "School");
-printf("%s\n", s);
-free(s);
-s = str_concat("Holberton ", NULL);
-printf("%s\n", s);
-free(s);
-s = str_concat("", "School");
-printf("%s\n", s);
-free(s);
+dprintf(STDERR_FILENO,
+"Error: Can't write to %s\n", argv[2]);
+free(buffer);
+exit(99);
+}
+r = read(from, buffer, 1024);
+to = open(argv[2], O_WRONLY | O_APPEND);
+} while (r > 0);
+free(buffer);
+close_file(from);
+close_file(to);
 return (0);
 }
