@@ -4,15 +4,17 @@
 char *allocate_buffer(void);
 void close_file_descriptor(int fd);
 /**
- * allocate_buffer - Dynamically allocates a buffer of size 1024 bytes.
- * Return: A pointer to the newly allocated buffer, or NULL on failure.
- */
+* allocate_buffer - Allocates a buffer of 1024 bytes.
+* @file: The name of the file the buffer is storing characters for.
+*
+* Return: A pointer to the newly allocated buffer.
+*/
 char *allocate_buffer(void)
 {
 char *buffer = malloc(sizeof(char) * 1024);
 if (buffer == NULL)
 {
-dprintf(STDERR_FILENO, "Error: Memory allocation failed\n");
+fprintf(stderr, "Error: Unable to allocate memory\n");
 exit(99);
 }
 return buffer;
@@ -23,10 +25,9 @@ return buffer;
 */
 void close_file_descriptor(int fd)
 {
-int result = close(fd);
-if (result == -1)
+if (close(fd) == -1)
 {
-dprintf(STDERR_FILENO, "Error: Can't close file descriptor %d\n", fd);
+fprintf(stderr, "Error: Unable to close file descriptor %d\n", fd);
 exit(100);
 }
 }
@@ -34,7 +35,9 @@ exit(100);
 * main - Copies the contents of one file to another.
 * @argc: The number of arguments supplied to the program.
 * @argv: An array of pointers to the arguments.
+*
 * Return: 0 on success.
+*
 * Description: Exit codes:
 *  97 - Incorrect number of arguments.
 *  98 - Unable to read from file_from or file does not exist.
@@ -43,35 +46,35 @@ exit(100);
 */
 int main(int argc, char *argv[])
 {
-int file_from, file_to, read_bytes, write_bytes;
+int file_from, file_to, bytes_read, bytes_written;
 char *buffer;
 if (argc != 3)
 {
-dprintf(STDERR_FILENO, "Usage: cp file_from file_to\n");
+fprintf(stderr, "Usage: cp file_from file_to\n");
 exit(97);
 }
 buffer = allocate_buffer();
 file_from = open(argv[1], O_RDONLY);
-read_bytes = read(file_from, buffer, 1024);
+bytes_read = read(file_from, buffer, 1024);
 file_to = open(argv[2], O_CREAT | O_WRONLY | O_TRUNC, 0664);
-while (read_bytes > 0)
+while (bytes_read > 0)
 {
-if (file_from == -1 || read_bytes == -1)
+if (file_from == -1 || bytes_read == -1)
 {
-dprintf(STDERR_FILENO,
+fprintf(stderr,
 "Error: Can't read from file %s\n", argv[1]);
 free(buffer);
 exit(98);
 }
-write_bytes = write(file_to, buffer, read_bytes);
-if (file_to == -1 || write_bytes == -1)
+bytes_written = write(file_to, buffer, bytes_read);
+if (file_to == -1 || bytes_written == -1)
 {
-dprintf(STDERR_FILENO,
+fprintf(stderr,
 "Error: Can't write to file %s\n", argv[2]);
 free(buffer);
 exit(99);
 }
-read_bytes = read(file_from, buffer, 1024);
+bytes_read = read(file_from, buffer, 1024);
 file_to = open(argv[2], O_WRONLY | O_APPEND);
 }
 free(buffer);
